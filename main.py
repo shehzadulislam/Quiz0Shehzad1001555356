@@ -1,59 +1,89 @@
-from flask import Flask, render_template, request
+import csv
+import sqlite3
+from sqlite3 import Error
+
+from flask import Flask, render_template,request
 app = Flask(__name__)
 
-import csv
-with open('People.csv') as csvfile:
-    readCSV = csv.reader(csvfile, delimiter=',')
-    names =[]
-    vehicles =[]
-    grades =[]
-    rooms =[]
-    telephones =[]
-    pictures =[]
-    keywords =[]
-    for row in readCSV:
-        name = row[0]
-        vehicle =row[1]
-        grade =row[2]
-        room =row[3]
-        telephone =row[4]
-        picture =row[5]
-        keyword =row[6]
 
-        names.append(name)
-        vehicles.append(vehicle)
-        grades.append(grade)
-        rooms.append(room)
-        telephones.append(telephone)
-        pictures.append(picture)
-        keywords.append(keyword)
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        print(e)
+    return None
 
-    print(names)
-    print(vehicles)
-    print(grades)
-    print(rooms)
-    print(telephones)
-    print(pictures)
-    print(keywords)
+def create_table(conn, create_table_sql):
+    """ create a table from the create_table_sql statement
+    :param conn: Connection object
+    :param create_table_sql: a CREATE TABLE statement
+    :return:
+    """
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+    except Error as e:
+        print(e)
 
-    # now, remember our lists?
 
-    # whatColor = input('What color do you wish to know the date of?:')
-    # coldex = colors.index(whatColor)
-    # theDate = dates[coldex]
-    # print('The date of',whatColor,'is:',theDate)
+def main():
+    database = "QuizShehzad.db"
 
+    sql_create_vehicle_table = """ CREATE TABLE IF NOT EXISTS Vehicles (
+                                        Name text,
+                                        Vehicle text,
+                                        Grade integer,
+                                        Room integer,
+                                        Telnum integer,
+                                        Picture text,
+                                        Keywords text
+                                    ); """
+    # create a database connection
+    conn = create_connection(database)
+    if conn is not None:
+        # create Vehicle table
+        create_table(conn, sql_create_vehicle_table)
+        readcsvinsertdata(conn)
+    else:
+        print("Error! cannot create the database connection.")
+
+
+def readcsvinsertdata(conn):
+    with open('People.csv', 'r') as csvfile:
+        readCSV = csv.reader(csvfile, delimiter=',')
+        next(readCSV)
+        for row in readCSV:
+            conn.execute("INSERT INTO Vehicles (Name,Vehicle,Grade,Room,Telnum,Picture,Keywords) VALUES (?,?,?,?,?,?,?)", (row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
+        conn.commit()
 
 @app.route('/')
 def home():
    return render_template('home.html')
+
+@app.route('/vehicles')
+def vehiclename():
+    con = sqlite3.connect("QuizShehzad.db")
+    cur = con.cursor()
+    cur.execute('SELECT * FROM Vehicles')
+    rows = cur.fetchall()
+    print(len(rows))
+    print(rows)
+    return render_template("original.html", rows=rows)
 
 @app.route('/original')
 def original():
    return render_template('original.html')
 
 if __name__ == '__main__':
-   app.run(debug = True)
+   main()
+   app.run(debug=True)
+
 
 # @app.route('/addrec',methods = ['POST', 'GET'])
 # def addrec():

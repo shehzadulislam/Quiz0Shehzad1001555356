@@ -4,7 +4,7 @@
    <body>
 
    <center>
-      <header> <h1> This page lists the Student records </h1>
+      <header> <h1> This page lists the vehicle records </h1>
       </header>
       <br>
       <h2> Shehzad ul Islam - 1001555356</h2>
@@ -13,17 +13,23 @@
       <table border = 1>
          <thead>
             <td>Name</td>
-            <td>Address</td>
-            <td>city</td>
-            <td>Pincode</td>
+            <td>Vehicle</td>
+            <td>Grade</td>
+            <td>Room</td>
+            <td>Telnum</td>
+            <td>Picture</td>
+            <td>Keywords</td>
          </thead>
 
          {% for row in rows %}
          <tr>
-            <td>{{row["name"]}}</td>
-            <td>{{row["addr"]}}</td>
-            <td> {{ row["city"]}}</td>
-            <td>{{row['pin']}}</td>	
+            <td>{{row[0]}}</td>
+            <td>{{row[1]}}</td>
+            <td>{{row[2]}}</td>
+            <td>{{row[3]}}</td>
+            <td>{{row[4]}}</td>
+            <td>{{row[5]}}</td>
+            <td>{{row[6]}}</td>
          </tr>
          {% endfor %}
       </table>

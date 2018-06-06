@@ -32,41 +32,45 @@ def create_table(conn, create_table_sql):
         print(e)
 
 
-def main():
-    database = "QuizShehzad.db"
-
-    sql_create_vehicle_table = """ CREATE TABLE IF NOT EXISTS Vehicles (
-                                        Name text,
-                                        Vehicle text,
-                                        Grade integer,
-                                        Room integer,
-                                        Telnum integer,
-                                        Picture text,
-                                        Keywords text
-                                    ); """
-    # create a database connection
-    conn = create_connection(database)
-    if conn is not None:
-        # create Vehicle table
-        create_table(conn, sql_create_vehicle_table)
-        readcsvinsertdata(conn)
-    else:
-        print("Error! cannot create the database connection.")
+# def main():
+#     database = "QuizShehzad.db"
+#
+#     sql_create_vehicle_table = """ CREATE TABLE IF NOT EXISTS Vehicles (
+#                                         Name text,
+#                                         Vehicle text,
+#                                         Grade integer,
+#                                         Room integer,
+#                                         Telnum integer,
+#                                         Picture text,
+#                                         Keywords text
+#                                     ); """
+#     # create a database connection
+#     conn = create_connection(database)
+#     if conn is not None:
+#         # create Vehicle table
+#         create_table(conn, sql_create_vehicle_table)
+#         readcsvinsertdata(conn)
+#     else:
+#         print("Error! cannot create the database connection.")
 
 
 def readcsvinsertdata(conn):
-    with open('People.csv', 'r') as csvfile:
+    with open('classes.csv', 'r') as csvfile:
         readCSV = csv.reader(csvfile, delimiter=',')
         next(readCSV)
-        for row in readCSV:
-            conn.execute("INSERT INTO Vehicles (Name,Vehicle,Grade,Room,Telnum,Picture,Keywords) VALUES (?,?,?,?,?,?,?)", (row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
-        conn.commit()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM Vehicles')
+        rows = cur.fetchall()
+        if len(rows) == 0:
+            for row in readCSV:
+                conn.execute("INSERT INTO classes (ID,Days,Grade,Room,Telnum,Picture,Keywords) VALUES (?,?,?,?,?,?,?)", (row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
+            conn.commit()
 
 @app.route('/')
 def home():
    return render_template('home.html')
 
-@app.route('/vehicles')
+@app.route('/classes')
 def vehiclename():
     con = sqlite3.connect("QuizShehzad.db")
     cur = con.cursor()
@@ -81,7 +85,7 @@ def original():
    return render_template('original.html')
 
 if __name__ == '__main__':
-   main()
+   # main()
    app.run(debug=True)
 
 
